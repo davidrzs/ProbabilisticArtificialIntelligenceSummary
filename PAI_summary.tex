@@ -1,0 +1,107 @@
+\documentclass[11pt]{article}
+\usepackage[headings]{fullpage}
+\usepackage[landscape,paper=a4paper,margin=0.4cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{eulervm}
+\usepackage{mathpazo}
+
+% Text formatting
+\usepackage{parskip}
+\setlength{\parskip}{2pt} %set space after paragraph
+
+\usepackage{etoolbox}
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+
+\titlespacing*{\subsection}{0pt}{-1pt}{-1pt}
+\titleformat*{\section}{\normalfont\bfseries\large\color{Blue}}
+\titlespacing*{\subsection}{0pt}{0pt}{0pt}
+\titleformat*{\subsection}{\normalfont\large\bfseries\itshape}
+\titlespacing*{\subsection}{0pt}{0pt}{0pt}
+\titleformat*{\subsubsection}{\normalfont\large\itshape}
+\newcommand{\gauss}{\mathcal{N}}
+
+\usepackage{mdframed}
+\mdfsetup{
+	innerleftmargin=0cm,innertopmargin=2pt,innerbottommargin=2pt%
+	linecolor=blue,
+	rightline=false,bottomline=true,
+	leftline=false,
+	skipbelow=0pt,
+	skipabove=0pt}
+
+
+
+\usepackage[all=tight,extreme]{savetrees}
+\usepackage{multicol}
+
+\begin{document}
+	
+	\begin{multicols*}{3}
+	
+	\section*{Useful math}
+	\subsection*{Gaussian}
+	$\gauss(y;\Sigma,\mu) = \frac{1}{(2\pi)^{n/2} \sqrt{|\Sigma|}} \exp \left( - \frac{1}{2} (y-\mu)^T \Sigma^{-1}(y-\mu) \right) $ where $\Sigma$ is the covariance matrix.
+	
+	Let X be a random variable with $X_V \sim \gauss(\mu_V,\Sigma_{VV})$ then we have:
+	\begin{itemize}
+		\item Marginal distribution of only variables indexed by $A$: $X_A \sim \gauss(\mu_A,\Sigma_{AA})$ (we drop all marginalized ones)
+		\item Conditioning on B gives $p(X_A,X_B = x_B) = \gauss(\mu_{A|B},\Sigma_{A|B})$ where we have $\mu_{A|B} = \mu_A + \Sigma_{AB}\Sigma_{BB}^{-1}(X_B - \mu_B)$ and $\Sigma_{A|B} = \Sigma_{AA} - \Sigma_{AB}\Sigma_{BB}^{-1}\Sigma_{BA}$.
+		\item Multiples of Gaussians. Assume $M\in \mathbb{R}^{m\times d}$ then for $Y=MX$ we have $Y\sim \gauss (M\mu_V,M\Sigma_{VV}M^T)$.
+		\item Sums of Gaussians $X+X'=Y$ yields $Y\sim \gauss (\mu_V + \mu_{V'} ,\Sigma_{VV} + \Sigma^{'}_{VV})$.
+	\end{itemize}
+	
+	
+
+	
+	\subsection*{Probabilities}
+	$\mathbb{E}_x[X] = \begin{cases}
+		\int x \cdot p(x) \partial x  & \text{if continuous}\\
+		\sum_x x \cdot p(x) & \text{otherwise}
+	\end{cases}$\\
+	$\operatorname{Var}[X] = \mathbb{E}[(X-\mu_X)^2] = \mathbb{E}[X^2] - \mathbb{E}[X]^2$\\
+	$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$; $p(Z|X,\theta) = \frac{p(X,Z|\theta)}{p(X|\theta)}$\\
+	$P(x,y) = P(y|x) \cdot  P(x) = P(x|y) \cdot P(y)$
+	
+	\subsection*{{Bayes Rule}}
+	$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$
+	
+	\subsection*{P-Norm}
+	$||x||_p = (\sum_{i=1}^n|x_i|^p)^{\frac{1}{p}}$, $1 \leq p < \infty$
+	
+	\subsection*{Some gradients}
+	$\nabla_x ||x||_2^2 = 2 x$\\
+	$f(x) = x^T A x$; $\nabla_x f(x) = (A + A^T) x$\\
+	E.g. $\nabla_w \operatorname{log}(1+\operatorname{exp(-y w^T x)}) = \\
+	\frac{1}{1+\operatorname{exp}(-y w^T x)} \cdot \operatorname{exp}(-y w^T x) \cdot (-y x) = \\
+	\frac{1}{1 + \operatorname{exp}(y w^T x)} \cdot(-yx)$\\
+	
+	
+	\subsection*{Convex / Jensen's inequality}
+	$\text{g(x) convex} \Leftrightarrow g''(x) > 0 \Leftrightarrow x_1,x_2 \in \mathbb{R}, \lambda \in [0,1]: 
+	g(\lambda x_1 + (1-\lambda) x_2) \leq \lambda g(x_1) + (1-\lambda) g(x_2)$
+	
+	\subsection*{Gaussian / Normal Distribution}
+	$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} exp(-\frac{(x-\mu)^2}{2\sigma^2})$
+	
+	\subsection*{Multivariate Gaussian}
+	$\Sigma =$ covariance matrix, $\mu$ = mean\\
+	$f(x) = \frac{1}{2\pi \sqrt{|\Sigma|}} e^{- \frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu)}$\\
+	Empirical: $\hat{\Sigma} = \frac{1}{n}\sum_{i=1}^n x_i x_i^T$ (needs centered data points)
+	
+	\subsection*{Positive semi-definite matrices}
+	$M \in \mathbb{R}^{n\times n}$ is psd $\Leftrightarrow$\\
+	$\forall x \in \mathbb{R}^n: x^TMx \geq 0 \Leftrightarrow$\\
+	all eigenvalues of $M$ are positive: $\lambda_i\geq 0$
+	
+		
+	\end{multicols*}
+	
+\end{document}
