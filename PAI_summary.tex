@@ -57,6 +57,19 @@
 		\item Multiples of Gaussians. Assume $M\in \mathbb{R}^{m\times d}$ then for $Y=MX$ we have $Y\sim \gauss (M\mu_V,M\Sigma_{VV}M^T)$.
 		\item Sums of Gaussians $X+X'=Y$ yields $Y\sim \gauss (\mu_V + \mu_{V'} ,\Sigma_{VV} + \Sigma^{'}_{VV})$.
 	\end{itemize}
+
+
+	\subsection*{Bayesian Linear Regression (BLR)}
+	Assume we have a prior $p(w) = \gauss (0,I)$ and a data likelihood $p(y|x,w,\sigma_n) = \gauss (y;w^Tx,\sigma^2_{n})$ where $y = w^Tx_i + \epsilon_i$ with $\epsilon_i \sim \gauss(0,\sigma^2)$.
+	
+	The posterior is: $p(w|X,y) = \gauss(w;\bar{\mu},\bar{\Sigma})$ with $\bar{\mu} = (X^TX + \sigma^2 I )^{-1}X^Ty$ and $\bar{\Sigma} = (\sigma_n^{-2}X^T X + I)^{-1}$.
+	
+	To make a prediction we need to marginalize 
+	
+	TODO: inference
+	
+	TODO: connection to map
+	
 	
 	
 
