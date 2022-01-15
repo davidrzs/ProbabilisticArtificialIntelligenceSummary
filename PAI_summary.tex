@@ -46,6 +46,37 @@
 	
 	\begin{multicols*}{3}
 	
+	
+	
+	\section*{Bayesian Linear Regression (BLR)}
+	\begin{itemize}
+		\item \textit{Prior:} $p(w) = \gauss (0,I)$
+\item \textit{Likelihood:} $p(y|x,w,\sigma_n) = \gauss (y;w^Tx,\sigma^2_{n})$ where $y = w^Tx_i + \epsilon_i$ with $\epsilon_i \sim \gauss(0,\sigma^2)$.
+\item \textit{Posterior:} $p(w|X,y) = \gauss(w;\bar{\mu},\bar{\Sigma})$ with $\bar{\mu} = (X^TX + \sigma^2 I )^{-1}X^Ty$ and $\bar{\Sigma} = (\sigma_n^{-2}X^T X + I)^{-1}$.
+\item \textit{Predictions:} $ p(y^* | x^*, x_{1:n}, y_{1:n}) \int p(y^*|x^*, w) p(w | x_{1:n}, y_{1:n}) dw$ where $f^* = w^T x^*$
+\begin{itemize}
+	\item $p(f^*| X,y,x^*) = \gauss(\bar{\mu}^T x^*, x^{*T}\bar{\Sigma} x^*)$
+	\item $p(y^*| X,y,x^*) = \gauss(\bar{\mu}^T x^*, x^{*T}\bar{\Sigma} x^* + \sigma_n^2)$
+\end{itemize}
+	\end{itemize}
+	
+	TODO: types of uncertainty.
+	
+	\section*{General Bayesian Learning}
+	\begin{itemize}
+		\item \textit{Prior:} $p(\theta)$
+		\item \textit{Likelihood:} $p(y_{1:n}| x_{1:n}, \theta) = \prod_{i=1}^{n} p(y_i | x_i, \theta)$
+		\item \textit{Posterior:} $p(\theta | x_{1:n}, y_{1:n}) = \frac{1}{Z} p(\theta) \prod_{i=1}^{n} p(y_i | x_i, \theta)$ with $Z = \int p(\theta) \prod_{i=1}^{n} p(y_i | x_i, \theta) d\theta$
+		\item \textit{Predictions:} $p(y^* | x^*, x_{1:n}, y_{1:n}) = \int p(y^*|x^*, \theta)p(\theta | x_{1:n}, y_{1:n}) d\theta$
+	\end{itemize}
+	
+	\section*{Gaussian Processes}
+	
+	
+	\section*{Variational Inference}
+	
+	
+	
 	\section*{Useful math}
 	\subsection*{Gaussian}
 	$\gauss(y;\Sigma,\mu) = \frac{1}{(2\pi)^{n/2} \sqrt{|\Sigma|}} \exp \left( - \frac{1}{2} (y-\mu)^T \Sigma^{-1}(y-\mu) \right) $ where $\Sigma$ is the covariance matrix.
@@ -57,21 +88,6 @@
 		\item Multiples of Gaussians. Assume $M\in \mathbb{R}^{m\times d}$ then for $Y=MX$ we have $Y\sim \gauss (M\mu_V,M\Sigma_{VV}M^T)$.
 		\item Sums of Gaussians $X+X'=Y$ yields $Y\sim \gauss (\mu_V + \mu_{V'} ,\Sigma_{VV} + \Sigma^{'}_{VV})$.
 	\end{itemize}
-
-
-	\subsection*{Bayesian Linear Regression (BLR)}
-	Assume we have a prior $p(w) = \gauss (0,I)$ and a data likelihood $p(y|x,w,\sigma_n) = \gauss (y;w^Tx,\sigma^2_{n})$ where $y = w^Tx_i + \epsilon_i$ with $\epsilon_i \sim \gauss(0,\sigma^2)$.
-	
-	The posterior is: $p(w|X,y) = \gauss(w;\bar{\mu},\bar{\Sigma})$ with $\bar{\mu} = (X^TX + \sigma^2 I )^{-1}X^Ty$ and $\bar{\Sigma} = (\sigma_n^{-2}X^T X + I)^{-1}$.
-	
-	To make a prediction we need to marginalize 
-	
-	TODO: inference
-	
-	TODO: connection to map
-	
-	
-	
 
 	
 	\subsection*{Probabilities}
