@@ -27,6 +27,9 @@
 \titlespacing*{\subsection}{0pt}{0pt}{0pt}
 \titleformat*{\subsubsection}{\normalfont\large\itshape}
 \newcommand{\gauss}{\mathcal{N}}
+\newcommand{\argmin}{\operatorname{argmin}}
+\newcommand{\argmax}{\operatorname{argmax}}
+\newcommand{\E}{\mathbb{E}}
 
 \usepackage{mdframed}
 \mdfsetup{
@@ -47,7 +50,7 @@
 	\begin{multicols*}{3}
 	
 	
-	
+	TODO types of noise!
 	\section*{Bayesian Linear Regression (BLR)}
 	\begin{itemize}
 		\item \textit{Prior:} $p(w) = \gauss (0,I)$
@@ -72,65 +75,159 @@
 	
 	\section*{Gaussian Processes}
 	
+	\section*{Approximating Intractable Distributions}
+	\textbf{Problem:} $Z = \int p(\theta) \prod_{i=1}^{n} p(y_i| x_i, \theta)$ is often intractable: Solutions: Variational Inference and MCMC.
 	
 	\section*{Variational Inference}
+	Approximate $p(\theta|y) = \frac{p(\theta, y)}{Z}\approx q(\theta| \lambda)\equiv q_\lambda$ where $\lambda$ is variational parameter.
+	\subsection*{Laplace Approximation}
+	Gaussian approx of posterior using Taylor: 
+	TODO
+	\subsection*{Kullback-Leibler Divergence}
+	$KL(q||p) = \int q(\theta) \log \frac{q(\theta)}{p(\theta)} d\theta$ with $KL(q||p) \geq 0$, generally not symmetric and zero iff agree almost everywhere.
 	
-	
-	
-	\section*{Useful math}
-	\subsection*{Gaussian}
-	$\gauss(y;\Sigma,\mu) = \frac{1}{(2\pi)^{n/2} \sqrt{|\Sigma|}} \exp \left( - \frac{1}{2} (y-\mu)^T \Sigma^{-1}(y-\mu) \right) $ where $\Sigma$ is the covariance matrix.
-	
-	Let X be a random variable with $X_V \sim \gauss(\mu_V,\Sigma_{VV})$ then we have:
-	\begin{itemize}
-		\item Marginal distribution of only variables indexed by $A$: $X_A \sim \gauss(\mu_A,\Sigma_{AA})$ (we drop all marginalized ones)
-		\item Conditioning on B gives $p(X_A,X_B = x_B) = \gauss(\mu_{A|B},\Sigma_{A|B})$ where we have $\mu_{A|B} = \mu_A + \Sigma_{AB}\Sigma_{BB}^{-1}(X_B - \mu_B)$ and $\Sigma_{A|B} = \Sigma_{AA} - \Sigma_{AB}\Sigma_{BB}^{-1}\Sigma_{BA}$.
-		\item Multiples of Gaussians. Assume $M\in \mathbb{R}^{m\times d}$ then for $Y=MX$ we have $Y\sim \gauss (M\mu_V,M\Sigma_{VV}M^T)$.
-		\item Sums of Gaussians $X+X'=Y$ yields $Y\sim \gauss (\mu_V + \mu_{V'} ,\Sigma_{VV} + \Sigma^{'}_{VV})$.
-	\end{itemize}
+	\subsection*{Deriving ELBO}
+	\begin{align*}
+		&\argmin_q \ KL(q||p) = \argmin \ \E\left[ \log \frac{q(\theta)}{\frac{1}{Z} p(\theta,y)} \right]\\
+	=& \argmin_q \  \E\left[ \log \ q(\theta) + \log \ Z - \log \ p(\theta,y) \right]\\
+	=&  \argmax_q \ \E\left[ \log \ p(\theta,y) \right] + H(q)\\
+	=& \argmax_q \E \left[ \log p(x| \theta) + \log p(\theta) - \log q(\theta) \right] \\
+	&= \argmax_q \E \left[ \log p(x| \theta) \right] + KL(q||p(\cdot))
+	\end{align*}
+Where $\E = \E_{\theta \sim q}$ and $p(\cdot)$ at the end is the prior.
+We call $\log p(y)$ the evidence
 
-	
-	\subsection*{Probabilities}
-	$\mathbb{E}_x[X] = \begin{cases}
-		\int x \cdot p(x) \partial x  & \text{if continuous}\\
-		\sum_x x \cdot p(x) & \text{otherwise}
-	\end{cases}$\\
-	$\operatorname{Var}[X] = \mathbb{E}[(X-\mu_X)^2] = \mathbb{E}[X^2] - \mathbb{E}[X]^2$\\
-	$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$; $p(Z|X,\theta) = \frac{p(X,Z|\theta)}{p(X|\theta)}$\\
-	$P(x,y) = P(y|x) \cdot  P(x) = P(x|y) \cdot P(y)$
-	
-	\subsection*{{Bayes Rule}}
-	$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$
-	
-	\subsection*{P-Norm}
-	$||x||_p = (\sum_{i=1}^n|x_i|^p)^{\frac{1}{p}}$, $1 \leq p < \infty$
-	
-	\subsection*{Some gradients}
-	$\nabla_x ||x||_2^2 = 2 x$\\
-	$f(x) = x^T A x$; $\nabla_x f(x) = (A + A^T) x$\\
-	E.g. $\nabla_w \operatorname{log}(1+\operatorname{exp(-y w^T x)}) = \\
-	\frac{1}{1+\operatorname{exp}(-y w^T x)} \cdot \operatorname{exp}(-y w^T x) \cdot (-y x) = \\
-	\frac{1}{1 + \operatorname{exp}(y w^T x)} \cdot(-yx)$\\
-	
-	
-	\subsection*{Convex / Jensen's inequality}
-	$\text{g(x) convex} \Leftrightarrow g''(x) > 0 \Leftrightarrow x_1,x_2 \in \mathbb{R}, \lambda \in [0,1]: 
-	g(\lambda x_1 + (1-\lambda) x_2) \leq \lambda g(x_1) + (1-\lambda) g(x_2)$
-	
-	\subsection*{Gaussian / Normal Distribution}
-	$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} exp(-\frac{(x-\mu)^2}{2\sigma^2})$
-	
-	\subsection*{Multivariate Gaussian}
-	$\Sigma =$ covariance matrix, $\mu$ = mean\\
-	$f(x) = \frac{1}{2\pi \sqrt{|\Sigma|}} e^{- \frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu)}$\\
-	Empirical: $\hat{\Sigma} = \frac{1}{n}\sum_{i=1}^n x_i x_i^T$ (needs centered data points)
-	
-	\subsection*{Positive semi-definite matrices}
-	$M \in \mathbb{R}^{n\times n}$ is psd $\Leftrightarrow$\\
-	$\forall x \in \mathbb{R}^n: x^TMx \geq 0 \Leftrightarrow$\\
-	all eigenvalues of $M$ are positive: $\lambda_i\geq 0$
-	
-		
-	\end{multicols*}
+TODO
+
+
+\section*{Markov Chains}
+
+\subsection*{Hoeffding's Inequality}
+Suppose $f$ is bounded in $\left[0,C\right]$ then $$P\left(| \E_P\left[f(X)\right] - \frac{1}{N} \sum_{i=1}^{N} f(x_i)| > \epsilon \right) \leq 2 \exp\left(-2N\epsilon^2/C^2\right)$$
+\subsection*{Stationary Markov Chain}
+If $\forall t$ we have $P(X_{t+1} | X_{t})$ independent of $t$.
+\subsection*{Ergodic Markov Chain}
+There exists a finite $t$ s.t. all states can be reached from every state in exactly $t$ steps.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section*{Active Learning}
+
+
+TODO
+
+
+
+\section*{Markov Decision Processes}
+
+\subsection*{Bellman Equations} TODO is this correct:
+$V^\pi(x) = \sum_a \pi(a|x) (R(x,a) + \gamma \sum_{x'} P(x'|x,a) V^\pi (x'))$\\
+$Q^\pi(x,a) = R(x,a) + \gamma \sum_{x'} P(x'|x,a) \sum_{a'} \pi(a'|x')Q^\pi(x',a')$
+\subsection*{Bellman Optimality Equations}
+$V^*(x) = \max_a R(x,a) + \gamma \sum_{x'} P(x' | x,y) V^*(x')$\\
+$Q^*(x,a) = R(x,a) + \gamma \sum_{x'}P(x'|x,a) \max_{a'} Q^*(x',a')$
+\subsection*{Policy Iteration}
+Start with random policy, evaluate $\mathbf{V}^\pi = \mathbf{R}^\pi + \gamma \mathbf{P}^\pi \mathbf{V}^\pi$, the use Bellman Optimality Criterion select better policy.
+\subsection*{Value Iteration}
+Init $V_0(x)$, $Q_t(x,a) = r(x,a) + \gamma \sum_{x'} P(x'|x,a)V_{t-1}(x')$, $V_t(x) = \max_a Q_t (x,a)$, $t+=1$ until conv.
+\subsection*{POMDP}
+TODO
+
+\section*{Reinforcment Learning}
+\subsection*{Model-based RL}
+Idea: Learn the MDP, then optimize policy based on MDP
+
+\subsection*{Model-free RL}
+Either via Policy or Value (or Actor Critic)
+
+
+
+TOOOOODOOO
+
+\subsection*{Policy Gradient Methods}
+
+
+
+\newpage
+
+\section*{Useful math}
+\subsection*{Gaussian}
+$\gauss(y;\Sigma,\mu) = \frac{1}{(2\pi)^{n/2} \sqrt{|\Sigma|}} \exp \left( - \frac{1}{2} (y-\mu)^T \Sigma^{-1}(y-\mu) \right) $ where $\Sigma$ is the covariance matrix.
+
+Let X be a random variable with $X_V \sim \gauss(\mu_V,\Sigma_{VV})$ then we have:
+\begin{itemize}
+	\item Marginal distribution of only variables indexed by $A$: $X_A \sim \gauss(\mu_A,\Sigma_{AA})$ (we drop all marginalized ones)
+	\item Conditioning on B gives $p(X_A,X_B = x_B) = \gauss(\mu_{A|B},\Sigma_{A|B})$ where we have $\mu_{A|B} = \mu_A + \Sigma_{AB}\Sigma_{BB}^{-1}(X_B - \mu_B)$ and $\Sigma_{A|B} = \Sigma_{AA} - \Sigma_{AB}\Sigma_{BB}^{-1}\Sigma_{BA}$.
+	\item Multiples of Gaussians. Assume $M\in \mathbb{R}^{m\times d}$ then for $Y=MX$ we have $Y\sim \gauss (M\mu_V,M\Sigma_{VV}M^T)$.
+	\item Sums of Gaussians $X+X'=Y$ yields $Y\sim \gauss (\mu_V + \mu_{V'} ,\Sigma_{VV} + \Sigma^{'}_{VV})$.
+\end{itemize}
+
+
+\subsection*{Probabilities}
+$\mathbb{E}_x[X] = \begin{cases}
+	\int x \cdot p(x) \partial x  & \text{if continuous}\\
+	\sum_x x \cdot p(x) & \text{otherwise}
+\end{cases}$\\
+$\operatorname{Var}[X] = \mathbb{E}[(X-\mu_X)^2] = \mathbb{E}[X^2] - \mathbb{E}[X]^2$\\
+$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$; $p(Z|X,\theta) = \frac{p(X,Z|\theta)}{p(X|\theta)}$\\
+$P(x,y) = P(y|x) \cdot  P(x) = P(x|y) \cdot P(y)$
+
+\subsection*{{Bayes Rule}}
+$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$
+
+\subsection*{P-Norm}
+$||x||_p = (\sum_{i=1}^n|x_i|^p)^{\frac{1}{p}}$, $1 \leq p < \infty$
+
+\subsection*{Some gradients}
+$\nabla_x ||x||_2^2 = 2 x$\\
+$f(x) = x^T A x$; $\nabla_x f(x) = (A + A^T) x$\\
+E.g. $\nabla_w \operatorname{log}(1+\operatorname{exp(-y w^T x)}) = \\
+\frac{1}{1+\operatorname{exp}(-y w^T x)} \cdot \operatorname{exp}(-y w^T x) \cdot (-y x) = \\
+\frac{1}{1 + \operatorname{exp}(y w^T x)} \cdot(-yx)$\\
+
+
+\subsection*{Convex / Jensen's inequality}
+$\text{g(x) convex} \Leftrightarrow g''(x) > 0 \Leftrightarrow x_1,x_2 \in \mathbb{R}, \lambda \in [0,1]: 
+g(\lambda x_1 + (1-\lambda) x_2) \leq \lambda g(x_1) + (1-\lambda) g(x_2)$
+
+\subsection*{Gaussian / Normal Distribution}
+$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} exp(-\frac{(x-\mu)^2}{2\sigma^2})$
+
+\subsection*{Multivariate Gaussian}
+$\Sigma =$ covariance matrix, $\mu$ = mean\\
+$f(x) = \frac{1}{2\pi \sqrt{|\Sigma|}} e^{- \frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu)}$\\
+Empirical: $\hat{\Sigma} = \frac{1}{n}\sum_{i=1}^n x_i x_i^T$ (needs centered data points)
+
+\subsection*{Positive semi-definite matrices}
+$M \in \mathbb{R}^{n\times n}$ is psd $\Leftrightarrow$\\
+$\forall x \in \mathbb{R}^n: x^TMx \geq 0 \Leftrightarrow$\\
+all eigenvalues of $M$ are positive: $\lambda_i\geq 0$
+
+TODO distribution stuff!!!!	
+\end{multicols*}
+
+
+
+
 	
 \end{document}
