@@ -9,7 +9,7 @@
 \usepackage{enumerate}
 \usepackage{color}
 \usepackage[dvipsnames]{xcolor}
-\usepackage{eulervm}
+
 \usepackage{mathpazo}
 
 % Text formatting
@@ -48,9 +48,6 @@
 \begin{document}
 	
 	\begin{multicols*}{3}
-	
-	
-	TODO types of noise!
 	\section*{Bayesian Linear Regression (BLR)}
 	\begin{itemize}
 		\item \textit{Prior:} $p(w) = \gauss (0,I)$
@@ -74,6 +71,18 @@
 	\end{itemize}
 	
 	\section*{Gaussian Processes}
+	Given $\{x_1,\ldots,x_m\}$ and $y_i = f(x_i) + \epsilon_i$ with $\epsilon_i \sim \gauss(0,\sigma^2)$. Then $p(f|x_1,\ldots,x_m,y_1,\ldots,y_m) = GP(f;\mu',k')$ where:
+	$\mu' = \mu(x) + k_{x,A}(K_{AA} + \sigma^2 I )^{-1}(y_A - \mu_A)$ and $k'(x,x') = k(x,x') - k_{x,A}(K_{AA} + \sigma^2 I)^{-1} K_{x,A}^T$ with $k_{x,A} = [k(x,x_1), \ldots, k(x,x_m)]$
+	\subsection*{Kernels}
+	Must be symmetric $k(x,x') = k(x',x)$ and positive semidefinite: $x^TKx \geq 0$, all Eigenvals $\geq 0$.
+	\begin{itemize}
+		\item Stationary $k(x,x') = k(x-x')$
+		\item Isotropic $k(x,x') = k(|||x-x'||_2)$
+		\item $k(x,x') = k_1(x,x') + k_2(x,x')$, $k(x,x') = k_1(x,x') \cdot k_2(x,x')$
+		\item $k(x,x') = c\cdot k_1(x,x')$, $k(x,x') = f(k_1(x,x'))$ with $f$ $\exp$ or pos coeff poly.
+	\end{itemize}
+	We optimize over hyperparam by TODO \\
+	How to speed up TODO
 	
 	\section*{Approximating Intractable Distributions}
 	\textbf{Problem:} $Z = \int p(\theta) \prod_{i=1}^{n} p(y_i| x_i, \theta)$ is often intractable: Solutions: Variational Inference and MCMC.
@@ -88,7 +97,7 @@
 	
 	\subsection*{Deriving ELBO}
 	\begin{align*}
-		&\argmin_q \ KL(q||p) = \argmin \ \E\left[ \log \frac{q(\theta)}{\frac{1}{Z} p(\theta,y)} \right]\\
+		&\argmin_q \ KL(q||p) = \argmin \ \E[ \log \frac{q(\theta)}{\frac{1}{Z} p(\theta,y)} ]\\
 	=& \argmin_q \  \E\left[ \log \ q(\theta) + \log \ Z - \log \ p(\theta,y) \right]\\
 	=&  \argmax_q \ \E\left[ \log \ p(\theta,y) \right] + H(q)\\
 	=& \argmax_q \E \left[ \log p(x| \theta) + \log p(\theta) - \log q(\theta) \right] \\
@@ -121,23 +130,15 @@ There exists a finite $t$ s.t. all states can be reached from every state in exa
 
 
 
-
-
-
-
-
-
-
-
-
-
 \section*{Active Learning}
-
-
+Which data to sample?
 TODO
 
-
-
+\section*{Bayesian Optimization}
+\subsection*{Upper Confidence Sampling (GP-UCB)}
+$x_{t+1} = \argmax_{x\in D} \mu_{t-1}(x) + \beta_t \sigma_{t-1} (x)$
+\subsection*{Thompson Sampling}
+$\tilde{f} \sim P(F|x_{1:t}, y_{1:t})$ and select $x_{t+1} \in \argmax_{x\in D} \tilde{f}(x)$
 \section*{Markov Decision Processes}
 
 \subsection*{Bellman Equations} TODO is this correct:
@@ -155,22 +156,49 @@ TODO
 
 \section*{Reinforcment Learning}
 \subsection*{Model-based RL}
-Idea: Learn the MDP, then optimize policy based on MDP
+Idea: Learn the MDP:
+\begin{itemize}
+	\item MLE: $P(X_{t+1}|X_t,A) = \frac{Cnt(X_{t+1},X_t,A)}{Cnt(X_t,A)}$, $r(x,a)=\frac{\sum_{t:X_t=x,A_t=a} R_t }{N_{x,a}}$
+	\item TODO $R_{max}$
+\end{itemize}
+
+then optimize policy based on MDP
+
+
 
 \subsection*{Model-free RL}
 Either via Policy or Value (or Actor Critic)
+\textbf{On-Policy:} $Q(x,a) \leftarrow Q(x,a) + \alpha (r + \gamma Q(x',\pi(x')) -Q(x,a) )$\\
+\textbf{On-Policy:} $Q(x,a) \leftarrow Q(x,a) + \alpha (r + \gamma \max_{a'} Q(x',a') - Q(x,a) )$
 
+TODO!!!! SARSA \& Q-learning.
 
+\subsection*{Convergence}
+If $\sum_t \alpha_t = \infty$ and $\sum_t \alpha_t^2 < \infty$ and all states visited infinitely often, then $\hat{V}^\pi$ converges to $V^\pi$ 
 
-TOOOOODOOO
 
 \subsection*{Policy Gradient Methods}
+We want $\theta^* = \argmax_\theta J(\theta) $ with\\
+ $J(\theta) = \E_{x_{0:T},a_{0:T} \sim \pi_\theta }\sum_{t=0}^{T} \gamma^t r(x_t,a_t) = \E_{\tau \sim \pi_\theta} r(\tau)$\\
+ We have $\nabla J(\theta) = \nabla \E_{\tau \sim \pi_0}[r(\tau) \nabla \log \pi_\theta (\tau)]$ $\forall b$ for var red.\\
+ $\nabla \E_{\tau \sim \pi_0}[r(\tau) \nabla \log \pi_\theta (\tau)] = \nabla \E_{\tau \sim \pi_0}[(r(\tau)-b) \nabla \log \pi_\theta (\tau)]$
+ 
+\subsection*{REINFORCE (MC Policy Gradient)}
+Init $\pi$ at rand. Gen. episode. Then for all timesteps $t$: $\theta \leftarrow \theta + \alpha \gamma^t G_t \nabla \log \pi (A_t|S_t,\theta)$.
+
+\subsection*{Actor Critic}
+Init $s,\pi,w$ at rand. Gen. episode. Then for all timesteps $t$: $\theta \leftarrow \theta + \alpha \gamma^t G_t \nabla \log \pi (A_t|S_t,\theta)$. TODO
 
 
 
 \newpage
 
 \section*{Useful math}
+\subsection*{MAP and MLE}
+\textbf{MLE} $\theta = \argmax_\theta P(X|\theta) = \argmax_\theta \prod_{i=1} P(x_i|\theta)$\\
+\textbf{MAP} $\theta = \argmax_\theta P(X|\theta) P(\theta)$
+
+
 \subsection*{Gaussian}
 $\gauss(y;\Sigma,\mu) = \frac{1}{(2\pi)^{n/2} \sqrt{|\Sigma|}} \exp \left( - \frac{1}{2} (y-\mu)^T \Sigma^{-1}(y-\mu) \right) $ where $\Sigma$ is the covariance matrix.
 
