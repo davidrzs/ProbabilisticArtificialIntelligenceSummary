@@ -60,7 +60,10 @@
 \end{itemize}
 	\end{itemize}
 	
-	TODO: types of uncertainty.
+\section*{Uncertainty}
+\textbf{Epistemic:} Model uncertainty that corresponds to uncertain model parameters which will disappear given enough data.\\
+\textbf{Aleatoric:} Inherent noise in observations: \textit{Homoscedastic} constant \textit{Heteroscedastic} varies - with different inputs.
+
 	
 	\section*{General Bayesian Learning}
 	\begin{itemize}
@@ -90,23 +93,40 @@
 	\section*{Variational Inference}
 	Approximate $p(\theta|y) = \frac{p(\theta, y)}{Z}\approx q(\theta| \lambda)\equiv q_\lambda$ where $\lambda$ is variational parameter.
 	\subsection*{Laplace Approximation}
-	Gaussian approx of posterior using Taylor: 
-	TODO
+	Gaussian approx of posterior using Taylor: $q(\theta) = \gauss(\theta;\hat{\theta},\Lambda^{-1})$, $\hat{\theta} = \argmax_\theta p(\theta|y)$, $\Lambda = -\nabla \nabla \log p(\hat{\theta}|y)$
+	
 	\subsection*{Kullback-Leibler Divergence}
 	$KL(q||p) = \int q(\theta) \log \frac{q(\theta)}{p(\theta)} d\theta$ with $KL(q||p) \geq 0$, generally not symmetric and zero iff agree almost everywhere.
-	
-	\subsection*{Deriving ELBO}
-	\begin{align*}
-		&\argmin_q \ KL(q||p) = \argmin \ \E[ \log \frac{q(\theta)}{\frac{1}{Z} p(\theta,y)} ]\\
-	=& \argmin_q \  \E\left[ \log \ q(\theta) + \log \ Z - \log \ p(\theta,y) \right]\\
-	=&  \argmax_q \ \E\left[ \log \ p(\theta,y) \right] + H(q)\\
-	=& \argmax_q \E \left[ \log p(x| \theta) + \log p(\theta) - \log q(\theta) \right] \\
-	&= \argmax_q \E \left[ \log p(x| \theta) \right] + KL(q||p(\cdot))
-	\end{align*}
-Where $\E = \E_{\theta \sim q}$ and $p(\cdot)$ at the end is the prior.
-We call $\log p(y)$ the evidence
+	There is backward (exclusive) $q^* = \argmin_q KL(q||p)$ and forward (inclusive) $q^* = \argmin_q KL(p||q)$ (usually we do forward)
 
+	\subsection*{Deriving ELBO (Backward KL)}
+
+$KL(q(\theta)||p(\theta|x)) = \E [\frac{q(\Theta)}{p(\Theta|x)}]=E_q [\log(q(\Theta))] - \E_q [\log p(\Theta|x)] = E_q [\log(q(\Theta))] - \E_q [\log p(\Theta,x)] +\log p(x) = - (\E_q [\log p(Z,x)] - \E [\log q(Z)]) + \log p(x)$ where $(\E_q [\log p(Z,x)] - \E [\log q(Z)]) = ELBO$
+Note that $\E_q [\log q(\Theta)] = H(q(\Theta))$
+
+	\subsection*{Forward KL}
 TODO
+
+\subsection*{Reparametrization}
+TODO
+\subsection*{Gradients}
+TODO
+
+\section*{Bayesian Deep Learning}
+
+\subsection*{Bayesian NN}
+Have two outputs $\mu$, $\sigma^2$ with $p(y_{1:n}|x_{1:n},\theta) = \prod_{i=1}^{n} \gauss(y_i;\mu(x_i,\theta),\sigma(x_i,\theta)^2)$, using MAP we get $\hat{\theta} = \argmin_\theta -\log p(\theta) - \sum_{i=1}^{n} P(y_i|x_i,\theta)$
+
+\subsection*{SVI (Var. Inf.) / Bayes by Backprop}
+TODO
+\subsection*{Stochastic gradient MCMC}
+TODO
+\subsection*{Monte Carlo Dropout}
+TODO
+\subsection*{Probabilistic Ensembles}
+TODO
+
+
 
 
 \section*{Markov Chains}
@@ -190,8 +210,6 @@ Init $\pi$ at rand. Gen. episode. Then for all timesteps $t$: $\theta \leftarrow
 Init $s,\pi,w$ at rand. Gen. episode. Then for all timesteps $t$: $\theta \leftarrow \theta + \alpha \gamma^t G_t \nabla \log \pi (A_t|S_t,\theta)$. TODO
 
 
-
-\newpage
 
 \section*{Useful math}
 \subsection*{MAP and MLE}
